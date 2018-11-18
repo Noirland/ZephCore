@@ -7,7 +7,7 @@
     <groupId>nz.co.noirland</groupId>
     <artifactId>zephcore</artifactId>
     <packaging>jar</packaging>
-    <version>3.2.6</version>
+    <version>4.0.0</version>
     <name>ZephCore</name>
     <scm>
         <connection>scm:git:git://github.com/Noirland/ZephCore.git</connection>
