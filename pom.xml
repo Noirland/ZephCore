@@ -5,9 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>nz.co.noirland</groupId>
-    <artifactId>zephcore-parent</artifactId>
-    <version>parent</version>
-    <packaging>pom</packaging>
+    <artifactId>zephcore</artifactId>
+    <packaging>jar</packaging>
+    <version>3.2.6</version>
+    <name>ZephCore</name>
+    <scm>
+        <connection>scm:git:git://github.com/Noirland/ZephCore.git</connection>
+    </scm>
 
     <repositories>
         <repository>
@@ -24,24 +28,96 @@
         </repository>
     </repositories>
 
-    <modules>
-        <module>nms</module>
-        <module>nms-v1_8_R1</module>
-        <module>nms-v1_8_R2</module>
-        <module>nms-v1_8_R3</module>
-        <module>nms-v1_9_R1</module>
-        <module>core</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.13.1-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
 
+        <dependency>
+            <groupId>com.comphenix.executors</groupId>
+            <artifactId>BukkitExecutors</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sk89q</groupId>
+            <artifactId>intake</artifactId>
+            <version>3.1.2-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jolbox</groupId>
+            <artifactId>bonecp</artifactId>
+            <version>0.8.0.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>2.12.3</version>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <javaVersion>1.8</javaVersion>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+    </properties>
     <build>
+        <finalName>${project.name}-${project.version}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>3.0</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <relocations>
+                        <relocation>
+                            <pattern>com.jolbox</pattern>
+                            <shadedPattern>nz.co.noirland.libs</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.slf4j</pattern>
+                            <shadedPattern>nz.co.noirland.libs.slf4j</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.sk89q.intake</pattern>
+                            <shadedPattern>nz.co.noirland.libs.intake</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.comphenix.executors</pattern>
+                            <shadedPattern>nz.co.noirland.libs.executors</shadedPattern>
+                        </relocation>
+                    </relocations>
+                    <artifactSet>
+                        <excludes>
+                            <exclude>com.google.guava:guava</exclude>
+                        </excludes>
+                    </artifactSet>
                 </configuration>
             </plugin>
         </plugins>
