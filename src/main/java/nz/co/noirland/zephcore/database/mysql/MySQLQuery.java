@@ -5,6 +5,7 @@ import nz.co.noirland.zephcore.database.Query;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,8 @@ public abstract class MySQLQuery implements Query {
 
     private Object[] values;
     private String query;
+
+    private List<Object[]> batches = new ArrayList<>();
 
     protected abstract MySQLDatabase getDB();
 
@@ -51,13 +54,23 @@ public abstract class MySQLQuery implements Query {
         return values;
     }
 
+    /**
+     * Saves the values to a batch, and starts a new one.
+     * These will be executed in one go on the SQL server.
+     */
+    public void batch() {
+        batches.add(values);
+        values = new Object[values.length];
+
+    }
+
     public String getQuery() {
         return query;
     }
 
     public void execute() throws SQLException {
         PreparedStatement stmt = getStatement();
-        stmt.execute();
+        stmt.executeBatch();
         stmt.getConnection().close();
     }
 
@@ -75,13 +88,20 @@ public abstract class MySQLQuery implements Query {
     private PreparedStatement getStatement() {
         String q = getQuery().replaceAll("\\{PREFIX\\}", getDB().getPrefix());
 
+        if(batches.isEmpty()) {
+            batch();
+        }
+
         try {
             PreparedStatement statement;
             statement = getDB().getRawConnection().prepareStatement(q);
-
-            for(int i = 0; i < values.length; i++) {
-                statement.setObject(i+1, values[i]);
+            for(Object[] batch : batches) {
+                for(int i = 0; i < batch.length; i++) {
+                    statement.setObject(i+1, batch[i]);
+                }
+                statement.addBatch();
             }
+
             return statement;
         } catch (SQLException e) {
             getDB().debug().disable("Could not create statement for database!", e);
