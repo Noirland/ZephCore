@@ -1,5 +1,8 @@
 package nz.co.noirland.zephcore.database;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListenableFutureTask;
+
 /**
  * Interface for a Query, regardless of database.
  */
@@ -16,5 +19,11 @@ public interface Query {
      * Schedules this query to be executed asynchronously.
      * Async queries are executed with {@link #execute()}
      */
-    void executeAsync();
+    ListenableFuture<Void> executeAsync();
+
+    /**
+     * Gets the task to be run by the thread when executing the async query.
+     * @return task created in {@link Query#executeAsync()}
+     */
+    ListenableFutureTask getTask();
 }

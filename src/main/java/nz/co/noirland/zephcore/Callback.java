@@ -24,7 +24,10 @@ public abstract class Callback<T> {
      */
     public Callback(Callable<T> task, FutureCallback<T> callback) {
         ListenableFuture<T> future = async.submit(task);
+        addSyncCallback(future, callback);
+    }
 
-        Futures.addCallback(future, callback, sync);
+    public static <V> void addSyncCallback(ListenableFuture<V> task, FutureCallback<? super V> callback) {
+        Futures.addCallback(task, callback, sync);
     }
 }

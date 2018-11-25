@@ -1,5 +1,8 @@
 package nz.co.noirland.zephcore.database.mysql;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListenableFutureTask;
+import nz.co.noirland.zephcore.ZephCore;
 import nz.co.noirland.zephcore.database.AsyncDatabaseUpdateTask;
 import nz.co.noirland.zephcore.database.Query;
 
@@ -7,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +20,8 @@ public abstract class MySQLQuery implements Query {
     private String query;
 
     private List<Object[]> batches = new ArrayList<>();
+
+    private ListenableFutureTask task;
 
     protected abstract MySQLDatabase getDB();
 
@@ -68,14 +74,27 @@ public abstract class MySQLQuery implements Query {
         return query;
     }
 
+    @Override
     public void execute() throws SQLException {
         PreparedStatement stmt = getStatement();
         stmt.executeBatch();
         stmt.getConnection().close();
     }
 
-    public void executeAsync() {
+    @Override
+    public ListenableFuture<Void> executeAsync() {
         AsyncDatabaseUpdateTask.addQuery(this);
+
+        ListenableFutureTask<Void> task = ListenableFutureTask.create(() -> {
+            try {
+                execute();
+                ZephCore.debug().debug("Executed db update statement " + toString());
+            } catch (Exception e) {
+                ZephCore.debug().warning("Failed to execute update statement " + toString(), e);
+            }
+        }, null);
+        this.task = task;
+        return task;
     }
 
     public List<Map<String, Object>> executeQuery() throws SQLException {
@@ -83,6 +102,27 @@ public abstract class MySQLQuery implements Query {
         List<Map<String, Object>> ret = MySQLDatabase.toMapList(stmt.executeQuery());
         stmt.getConnection().close();
         return ret;
+    }
+
+    public ListenableFuture<List<Map<String, Object>>> executeQueryAsync() {
+        AsyncDatabaseUpdateTask.addQuery(this);
+
+        ListenableFutureTask<List<Map<String, Object>>> task = ListenableFutureTask.create(() -> {
+            try {
+                ZephCore.debug().debug("Executing db statement " + toString());
+                return executeQuery();
+            } catch (Exception e) {
+                ZephCore.debug().warning("Failed to execute statement " + toString(), e);
+                return Collections.emptyList();
+            }
+        });
+        this.task = task;
+        return task;
+    }
+
+    @Override
+    public ListenableFutureTask getTask() {
+        return task;
     }
 
     private PreparedStatement getStatement() {

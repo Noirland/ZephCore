@@ -49,7 +49,7 @@ public class AsyncDatabaseUpdateTask extends Thread {
 
     private void execute(Query query) {
         try {
-            query.execute();
+            query.getTask().run();
             ZephCore.debug().debug("Executed db update statement " + query.toString());
         } catch (Exception e) {
             ZephCore.debug().warning("Failed to execute update statement " + query.toString(), e);

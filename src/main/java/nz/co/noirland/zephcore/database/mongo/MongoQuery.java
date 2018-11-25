@@ -1,8 +1,11 @@
 package nz.co.noirland.zephcore.database.mongo;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListenableFutureTask;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
+import nz.co.noirland.zephcore.ZephCore;
 import nz.co.noirland.zephcore.database.AsyncDatabaseUpdateTask;
 import nz.co.noirland.zephcore.database.Query;
 import org.apache.commons.lang.Validate;
@@ -25,6 +28,8 @@ public abstract class MongoQuery implements Query {
      * @see QueryType
      */
     private QueryType type;
+
+    private ListenableFutureTask task;
 
     /**
      * Provides the database that this query is used in. This is required
@@ -59,8 +64,19 @@ public abstract class MongoQuery implements Query {
     }
 
     @Override
-    public void executeAsync() {
+    public ListenableFuture<Void> executeAsync() {
         AsyncDatabaseUpdateTask.addQuery(this);
+
+        ListenableFutureTask<Void> task = ListenableFutureTask.create(() -> {
+            try {
+                execute();
+                ZephCore.debug().debug("Executed db update statement " + toString());
+            } catch (Exception e) {
+                ZephCore.debug().warning("Failed to execute update statement " + toString(), e);
+            }
+        }, null);
+        this.task = task;
+        return task;
     }
 
     public DBObject doOne() {
@@ -77,6 +93,11 @@ public abstract class MongoQuery implements Query {
 
     protected DBCollection getCollection() {
         return getDB().getCollection().getCollection(collection);
+    }
+
+    @Override
+    public ListenableFutureTask getTask() {
+        return task;
     }
 
     protected enum QueryType {
