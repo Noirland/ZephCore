@@ -32,7 +32,7 @@ public abstract class MySQLDatabase extends Database {
     @Override
     protected void init() {
         BoneCPConfig conf = new BoneCPConfig();
-        conf.setJdbcUrl(String.format("jdbc:mysql://%s:%s/%s?rewriteBatchedStatements=true", getHost(), getPort(), getDatabase()));
+        conf.setJdbcUrl(String.format("jdbc:mysql://%s:%s/%s?rewriteBatchedStatements=true&useSSL=false", getHost(), getPort(), getDatabase()));
         conf.setUser(getUsername());
         conf.setPassword(getPassword());
         conf.setMaxConnectionsPerPartition(5);
