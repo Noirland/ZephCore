@@ -83,9 +83,7 @@ public abstract class MySQLQuery implements Query {
 
     @Override
     public ListenableFuture<Void> executeAsync() {
-        AsyncDatabaseUpdateTask.addQuery(this);
-
-        ListenableFutureTask<Void> task = ListenableFutureTask.create(() -> {
+        task = ListenableFutureTask.create(() -> {
             try {
                 execute();
                 ZephCore.debug().debug("Executed db update statement " + toString());
@@ -93,7 +91,7 @@ public abstract class MySQLQuery implements Query {
                 ZephCore.debug().warning("Failed to execute update statement " + toString(), e);
             }
         }, null);
-        this.task = task;
+        AsyncDatabaseUpdateTask.addQuery(this);
         return task;
     }
 
@@ -105,9 +103,7 @@ public abstract class MySQLQuery implements Query {
     }
 
     public ListenableFuture<List<Map<String, Object>>> executeQueryAsync() {
-        AsyncDatabaseUpdateTask.addQuery(this);
-
-        ListenableFutureTask<List<Map<String, Object>>> task = ListenableFutureTask.create(() -> {
+        task =  ListenableFutureTask.create(() -> {
             try {
                 ZephCore.debug().debug("Executing db statement " + toString());
                 return executeQuery();
@@ -116,7 +112,7 @@ public abstract class MySQLQuery implements Query {
                 return Collections.emptyList();
             }
         });
-        this.task = task;
+        AsyncDatabaseUpdateTask.addQuery(this);
         return task;
     }
 
