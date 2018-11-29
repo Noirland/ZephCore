@@ -1,5 +1,6 @@
 package nz.co.noirland.zephcore;
 
+import co.aikar.commands.BukkitCommandManager;
 import nz.co.noirland.zephcore.database.AsyncDatabaseUpdateTask;
 import nz.co.noirland.zephcore.database.Database;
 import org.bukkit.OfflinePlayer;
@@ -29,6 +30,9 @@ public class ZephCore extends JavaPlugin implements Listener {
         AsyncDatabaseUpdateTask.inst().start();
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(CancelFallManager.inst(), this);
+
+        BukkitCommandManager manager = new BukkitCommandManager(this);
+        manager.registerCommand(new CoreCommand());
     }
 
     @Override

@@ -7,7 +7,7 @@
     <groupId>nz.co.noirland</groupId>
     <artifactId>zephcore</artifactId>
     <packaging>jar</packaging>
-    <version>4.2.1</version>
+    <version>4.3</version>
     <name>ZephCore</name>
     <scm>
         <connection>scm:git:git://github.com/Noirland/ZephCore.git</connection>
@@ -26,6 +26,10 @@
             <id>sk89q-repo</id>
             <url>http://maven.sk89q.com/repo/</url>
         </repository>
+        <repository>
+            <id>aikar</id>
+            <url>https://repo.aikar.co/content/groups/aikar/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -42,9 +46,9 @@
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.sk89q</groupId>
-            <artifactId>intake</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
+            <groupId>co.aikar</groupId>
+            <artifactId>acf-bukkit</artifactId> <!-- Don't forget to replace this -->
+            <version>0.5.0-SNAPSHOT</version> <!-- Replace this as well-->
         </dependency>
 
         <dependency>
@@ -105,8 +109,8 @@
                             <shadedPattern>nz.co.noirland.libs.slf4j</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.sk89q.intake</pattern>
-                            <shadedPattern>nz.co.noirland.libs.intake</shadedPattern>
+                            <pattern>co.aikar.commands</pattern>
+                            <shadedPattern>nz.co.noirland.libs.acf</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>com.comphenix.executors</pattern>

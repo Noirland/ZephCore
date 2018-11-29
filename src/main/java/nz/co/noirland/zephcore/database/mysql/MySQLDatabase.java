@@ -64,4 +64,8 @@ public abstract class MySQLDatabase extends Database {
     public Connection getRawConnection() throws SQLException {
         return pool.getConnection();
     }
+
+    public HikariDataSource getRawPool() {
+        return pool;
+    }
 }
