@@ -6,7 +6,9 @@ import nz.co.noirland.zephcore.ZephCore;
 import nz.co.noirland.zephcore.database.AsyncDatabaseUpdateTask;
 import nz.co.noirland.zephcore.database.Query;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,9 +78,9 @@ public abstract class MySQLQuery implements Query {
 
     @Override
     public void execute() throws SQLException {
-        PreparedStatement stmt = getStatement();
-        stmt.executeBatch();
-        stmt.getConnection().close();
+        try(Connection conn = getConnection(); PreparedStatement stmt = getStatement(conn)) {
+            stmt.executeBatch();
+        }
     }
 
     @Override
@@ -96,10 +98,9 @@ public abstract class MySQLQuery implements Query {
     }
 
     public List<Map<String, Object>> executeQuery() throws SQLException {
-        PreparedStatement stmt = getStatement();
-        List<Map<String, Object>> ret = MySQLDatabase.toMapList(stmt.executeQuery());
-        stmt.getConnection().close();
-        return ret;
+        try (Connection conn = getConnection(); PreparedStatement stmt = getStatement(conn); ResultSet res = stmt.executeQuery()) {
+            return MySQLDatabase.toMapList(res);
+        }
     }
 
     public ListenableFuture<List<Map<String, Object>>> executeQueryAsync() {
@@ -121,28 +122,27 @@ public abstract class MySQLQuery implements Query {
         return task;
     }
 
-    private PreparedStatement getStatement() {
+    private Connection getConnection() throws SQLException {
+        return getDB().getRawConnection();
+    }
+
+    private PreparedStatement getStatement(Connection connection) throws SQLException {
         String q = getQuery().replaceAll("\\{PREFIX\\}", getDB().getPrefix());
 
         if(batches.isEmpty()) {
             batch();
         }
 
-        try {
-            PreparedStatement statement;
-            statement = getDB().getRawConnection().prepareStatement(q);
-            for(Object[] batch : batches) {
-                for(int i = 0; i < batch.length; i++) {
-                    statement.setObject(i+1, batch[i]);
-                }
-                statement.addBatch();
+        PreparedStatement statement;
+        statement = connection.prepareStatement(q);
+        for(Object[] batch : batches) {
+            for(int i = 0; i < batch.length; i++) {
+                statement.setObject(i+1, batch[i]);
             }
-
-            return statement;
-        } catch (SQLException e) {
-            getDB().debug().disable("Could not create statement for database!", e);
-            return null;
+            statement.addBatch();
         }
+
+        return statement;
     }
 
     @Override

@@ -37,6 +37,7 @@ public abstract class MySQLDatabase extends Database {
         conf.setPassword(getPassword());
         conf.addDataSourceProperty("rewriteBatchedStatements", true);
         conf.addDataSourceProperty("useSSL", false);
+        conf.setMaximumPoolSize(20);
 
         pool = new HikariDataSource(conf);
     }
