@@ -1,7 +1,7 @@
 package nz.co.noirland.zephcore.database.mysql;
 
-import com.jolbox.bonecp.BoneCP;
-import com.jolbox.bonecp.BoneCPConfig;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import nz.co.noirland.zephcore.database.Database;
 
 import java.sql.Connection;
@@ -15,7 +15,7 @@ import java.util.Map;
 
 public abstract class MySQLDatabase extends Database {
 
-    private BoneCP pool;
+    private HikariDataSource pool;
 
     @Override
     protected int getCurrentSchema() {
@@ -31,22 +31,19 @@ public abstract class MySQLDatabase extends Database {
 
     @Override
     protected void init() {
-        BoneCPConfig conf = new BoneCPConfig();
-        conf.setJdbcUrl(String.format("jdbc:mysql://%s:%s/%s?rewriteBatchedStatements=true&useSSL=false", getHost(), getPort(), getDatabase()));
-        conf.setUser(getUsername());
+        HikariConfig conf = new HikariConfig();
+        conf.setJdbcUrl(String.format("jdbc:mysql://%s:%s/%s", getHost(), getPort(), getDatabase()));
+        conf.setUsername(getUsername());
         conf.setPassword(getPassword());
-        conf.setMaxConnectionsPerPartition(5);
+        conf.addDataSourceProperty("rewriteBatchedStatements", true);
+        conf.addDataSourceProperty("useSSL", false);
 
-        try {
-            pool = new BoneCP(conf);
-        } catch (SQLException e) {
-            debug().disable("Unable to connect to database!", e);
-        }
+        pool = new HikariDataSource(conf);
     }
 
     @Override
     public void close() {
-        pool.shutdown();
+        pool.close();
     }
 
     public static List<Map<String, Object>> toMapList(ResultSet res) throws SQLException {

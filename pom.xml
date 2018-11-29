@@ -7,7 +7,7 @@
     <groupId>nz.co.noirland</groupId>
     <artifactId>zephcore</artifactId>
     <packaging>jar</packaging>
-    <version>4.0.0</version>
+    <version>4.2.0</version>
     <name>ZephCore</name>
     <scm>
         <connection>scm:git:git://github.com/Noirland/ZephCore.git</connection>
@@ -48,9 +48,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jolbox</groupId>
-            <artifactId>bonecp</artifactId>
-            <version>0.8.0.RELEASE</version>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -97,8 +97,8 @@
                 <configuration>
                     <relocations>
                         <relocation>
-                            <pattern>com.jolbox</pattern>
-                            <shadedPattern>nz.co.noirland.libs</shadedPattern>
+                            <pattern>com.zaxxer.hikari</pattern>
+                            <shadedPattern>nz.co.noirland.libs.hikari</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.slf4j</pattern>
