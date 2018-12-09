@@ -19,10 +19,6 @@
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
         <repository>
-            <id>comphenix-repo</id>
-            <url>http://repo.comphenix.com/content/groups/public</url>
-        </repository>
-        <repository>
             <id>aikar</id>
             <url>https://repo.aikar.co/content/groups/aikar/</url>
         </repository>
@@ -36,11 +32,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.comphenix.executors</groupId>
-            <artifactId>BukkitExecutors</artifactId>
-            <version>1.0.0</version>
-        </dependency>
         <dependency>
             <groupId>co.aikar</groupId>
             <artifactId>acf-bukkit</artifactId> <!-- Don't forget to replace this -->
